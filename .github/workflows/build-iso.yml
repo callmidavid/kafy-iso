@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - "distro/kafy/**"
+      - "archiso/**"
       - ".github/workflows/build-iso.yml"
 
 jobs:
@@ -22,7 +22,7 @@ jobs:
           docker run --rm \
             --privileged \
             -v "$GITHUB_WORKSPACE:/workspace" \
-            -w /workspace/distro/kafy \
+            -w /workspace/archiso \
             archlinux:latest \
             bash -lc 'pacman -Syu --noconfirm archiso && ./build.sh /workspace/artifacts'
 
