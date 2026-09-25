@@ -2,21 +2,10 @@ name: Build Kafy OS ISO
 
 on:
   workflow_dispatch:
-    inputs:
-      kafy_ref:
-        description: Kafy source branch, tag, or commit to bake into the ISO
-        required: false
-        default: main
   push:
     paths:
-      - "archiso/**"
-      - "test/**"
+      - "distro/kafy/**"
       - ".github/workflows/build-iso.yml"
-
-env:
-  # Change this repository variable if the Kafy source repository has a
-  # different name. The fallback matches this project's current GitHub name.
-  KAFY_SOURCE_REPOSITORY: ${{ vars.KAFY_SOURCE_REPOSITORY || format('{0}/kafyOS', github.repository_owner) }}
 
 jobs:
   build-iso:
@@ -25,29 +14,17 @@ jobs:
     timeout-minutes: 120
 
     steps:
-      - name: Checkout ISO builder
+      - name: Checkout source
         uses: actions/checkout@v4
-        with:
-          path: kafy-iso
-
-      - name: Checkout Kafy source
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ env.KAFY_SOURCE_REPOSITORY }}
-          ref: ${{ inputs.kafy_ref || 'main' }}
-          path: kafy
 
       - name: Build Kafy Arch ISO
         run: |
           docker run --rm \
             --privileged \
-            -v "$GITHUB_WORKSPACE/kafy-iso:/iso:ro" \
-            -v "$GITHUB_WORKSPACE/kafy:/kafy:ro" \
-            -v "$GITHUB_WORKSPACE/artifacts:/output" \
-            -v "$GITHUB_WORKSPACE/kafy-iso/cache/pkg:/var/cache/pacman/pkg" \
-            -v "$GITHUB_WORKSPACE/kafy-iso/cache/db:/var/lib/pacman/sync" \
+            -v "$GITHUB_WORKSPACE:/workspace" \
+            -w /workspace/distro/kafy \
             archlinux:latest \
-            bash -lc 'pacman -Syu --noconfirm archiso && cd /iso/archiso && KAFY_SOURCE=/kafy KAFY_WORK_DIR=/tmp/kafy-archiso-work ./build.sh /output'
+            bash -lc 'pacman -Syu --noconfirm archiso && ./build.sh /workspace/artifacts'
 
       - name: Upload ISO
         uses: actions/upload-artifact@v4

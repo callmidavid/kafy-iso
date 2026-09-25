@@ -13,8 +13,20 @@ required_files=(
   "airootfs/etc/skel/.config/hypr/hyprland.conf"
   "airootfs/usr/share/wallpapers/kafy/contents/images/1920x1080.png"
   "airootfs/usr/local/bin/kafy-doctor"
+  "airootfs/usr/local/bin/kafy-theme"
+  "airootfs/usr/local/bin/kafy-shell"
+  "airootfs/usr/share/kafy/themes/kafy/metadata.json"
+  "airootfs/usr/share/kafy/themes/kafy/hyprland.conf"
+  "airootfs/usr/share/kafy/themes/kafy/waybar.css"
+  "airootfs/etc/xdg/quickshell/kafy/shell.qml"
+  "airootfs/etc/xdg/quickshell/kafy/KafyBar.qml"
+  "airootfs/etc/xdg/quickshell/kafy/theme/KafyTheme.qml"
   "airootfs/usr/local/bin/kafy-wallpaper"
   "airootfs/usr/local/bin/kafy-installer"
+  "airootfs/usr/local/bin/kafy-install-target"
+  "airootfs/usr/local/share/kafy-installer/system/usr/local/lib/kafy/install/provision-target"
+  "airootfs/usr/local/share/kafy-installer/system/usr/local/bin/kafy-first-boot"
+  "airootfs/usr/local/share/kafy-installer/system/etc/systemd/user/kafy-first-boot.service"
   "airootfs/etc/sddm.conf.d/kafy-live.conf"
   "airootfs/etc/mkinitcpio.conf.d/archiso.conf"
 )
@@ -27,8 +39,8 @@ for required_file in "${required_files[@]}"; do
 done
 
 hyprland_config="$staging_dir/airootfs/etc/skel/.config/hypr/hyprland.conf"
-rg -qx 'windowrule = float on, match:class \^\(kafy-welcome\)\$' "$hyprland_config"
-rg -qx 'windowrule = center on, match:class \^\(kafy-welcome\)\$' "$hyprland_config"
-rg -qx 'exec-once = /usr/local/bin/kafy-wallpaper' "$hyprland_config"
+grep -Fqx 'windowrule = float on, match:class ^(kafy-welcome)$' "$hyprland_config"
+grep -Fqx 'windowrule = center on, match:class ^(kafy-welcome)$' "$hyprland_config"
+grep -Fqx 'exec-once = /usr/local/bin/kafy-wallpaper' "$hyprland_config"
 
 printf 'Kafy profile composition test passed.\n'
