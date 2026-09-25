@@ -12,7 +12,7 @@ Before changing `packages.x86_64`, resolve every new package against official Ar
 
 ## Source revision contract
 
-For a developer build, `KAFY_SOURCE` identifies the Kafy product checkout. For GitHub Actions, set the ISO repository variable `KAFY_SOURCE_REPOSITORY` to the `owner/repository` name of the Kafy source project if it differs from the workflow default. Manual runs may choose a branch, tag, or commit through the `kafy_ref` input.
+For a developer build, `KAFY_SOURCE` identifies the Kafy product checkout. GitHub Actions checks out `King12-D/kafyOS` separately from this builder repository. Manual runs may choose a branch, tag, or commit through the `kafy_ref` input.
 
 Release automation must record the exact Kafy commit used for every published ISO. Do not treat an unpinned development checkout as a release input.
 
