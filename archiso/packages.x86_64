@@ -80,6 +80,7 @@ python
 python-pillow
 libvips
 libnotify
+nethogs
 grim
 slurp
 wf-recorder

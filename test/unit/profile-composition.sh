@@ -14,22 +14,23 @@ required_files=(
   "airootfs/usr/share/wallpapers/kafy/contents/images/1920x1080.png"
   "airootfs/usr/local/bin/kafy-doctor"
   "airootfs/usr/local/bin/kafy-theme"
-  "airootfs/usr/local/bin/kafy-shell"
   "airootfs/usr/share/kafy/themes/kafy/metadata.json"
   "airootfs/usr/share/kafy/themes/kafy/hyprland.conf"
   "airootfs/usr/share/kafy/themes/kafy/waybar.css"
-  "airootfs/etc/xdg/quickshell/kafy/shell.qml"
-  "airootfs/etc/xdg/quickshell/kafy/KafyBar.qml"
-  "airootfs/etc/xdg/quickshell/kafy/theme/KafyTheme.qml"
   "airootfs/etc/skel/.config/quickshell/shell.qml"
+  "airootfs/etc/skel/.config/quickshell/components/Bar.qml"
+  "airootfs/etc/skel/.config/quickshell/components/Colors.qml"
   "airootfs/etc/skel/.config/theme/current/colors.conf"
+  "airootfs/etc/skel/.config/systemd/user/watchcat.service"
   "airootfs/usr/share/sddm/themes/elarun-custom/Main.qml"
+  "airootfs/usr/share/kafy/firefox/user.js"
   "airootfs/usr/share/icons/Bibata-Modern-Ice/index.theme"
   "airootfs/usr/local/bin/kafy-wallpaper"
   "airootfs/usr/local/bin/kafy-installer"
   "airootfs/usr/local/bin/kafy-install-target"
   "airootfs/usr/local/share/kafy-installer/system/usr/local/lib/kafy/install/provision-target"
   "airootfs/usr/local/share/kafy-installer/system/usr/local/bin/kafy-first-boot"
+  "airootfs/usr/local/share/kafy-installer/system/etc/sudoers.d/kafy-watchcat"
   "airootfs/usr/local/share/kafy-installer/system/etc/systemd/user/kafy-first-boot.service"
   "airootfs/etc/sddm.conf.d/kafy-live.conf"
   "airootfs/etc/mkinitcpio.conf.d/archiso.conf"
@@ -43,7 +44,7 @@ for required_file in "${required_files[@]}"; do
 done
 
 for executable in \
-  kafy-doctor kafy-installer kafy-install-target kafy-shell kafy-theme kafy-welcome kafy-wallpaper; do
+  kafy-doctor kafy-installer kafy-install-target kafy-theme kafy-welcome kafy-wallpaper; do
   [[ -x "$staging_dir/airootfs/usr/local/bin/$executable" ]] || {
     printf 'Composed command is not executable: %s\n' "$executable" >&2
     exit 1
@@ -52,7 +53,7 @@ done
 
 profile_definition="$profile_dir/profiledef.sh"
 for executable in \
-  kafy-doctor kafy-installer kafy-install-target kafy-shell kafy-theme kafy-welcome kafy-wallpaper; do
+  kafy-doctor kafy-installer kafy-install-target kafy-theme kafy-welcome kafy-wallpaper; do
   grep -Fqx "  [\"/usr/local/bin/$executable\"]=\"0:0:755\"" "$profile_definition"
 done
 
