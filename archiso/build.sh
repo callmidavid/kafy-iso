@@ -16,14 +16,17 @@ if ! command -v mkarchiso >/dev/null 2>&1; then
 
   mkdir -p "$output_dir" "$iso_dir/cache/pkg" "$iso_dir/cache/db"
   echo "mkarchiso is unavailable; building in an Arch Linux container."
+  docker_env=()
+  [[ -n ${KAFY_MIRROR:-} ]] && docker_env=(-e "KAFY_MIRROR=$KAFY_MIRROR")
   docker run --rm --privileged \
+    "${docker_env[@]}" \
     -v "$iso_dir:/iso:ro" \
     -v "$kafy_source:/kafy:ro" \
     -v "$output_dir:/output" \
     -v "$iso_dir/cache/pkg:/var/cache/pacman/pkg" \
     -v "$iso_dir/cache/db:/var/lib/pacman/sync" \
     archlinux:latest \
-    bash -lc 'pacman -Syu --noconfirm archiso && cd /iso/archiso && KAFY_SOURCE=/kafy KAFY_WORK_DIR=/tmp/kafy-archiso-work ./build.sh /output'
+    bash -lc 'if [ -n "${KAFY_MIRROR:-}" ]; then { printf "Server = %s\n" "$KAFY_MIRROR"; cat /etc/pacman.d/mirrorlist; } > /tmp/ml && mv /tmp/ml /etc/pacman.d/mirrorlist; fi; pacman -Syu --noconfirm archiso && cd /iso/archiso && KAFY_SOURCE=/kafy KAFY_WORK_DIR=/tmp/kafy-archiso-work ./build.sh /output'
 else
   if [[ $EUID -ne 0 ]]; then
     echo "Run this builder as root on an Arch host: sudo ./build.sh [output-directory]" >&2

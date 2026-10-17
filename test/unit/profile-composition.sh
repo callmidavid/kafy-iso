@@ -13,10 +13,6 @@ required_files=(
   "airootfs/etc/skel/.config/hypr/hyprland.conf"
   "airootfs/usr/share/wallpapers/kafy/contents/images/1920x1080.png"
   "airootfs/usr/local/bin/kafy-doctor"
-  "airootfs/usr/local/bin/kafy-theme"
-  "airootfs/usr/share/kafy/themes/kafy/metadata.json"
-  "airootfs/usr/share/kafy/themes/kafy/hyprland.conf"
-  "airootfs/usr/share/kafy/themes/kafy/waybar.css"
   "airootfs/etc/skel/.config/quickshell/shell.qml"
   "airootfs/etc/skel/.config/quickshell/components/Bar.qml"
   "airootfs/etc/skel/.config/quickshell/components/Colors.qml"
@@ -25,7 +21,6 @@ required_files=(
   "airootfs/usr/share/sddm/themes/elarun-custom/Main.qml"
   "airootfs/usr/share/kafy/firefox/user.js"
   "airootfs/usr/share/icons/Bibata-Modern-Ice/index.theme"
-  "airootfs/usr/local/bin/kafy-wallpaper"
   "airootfs/usr/local/bin/kafy-installer"
   "airootfs/usr/local/bin/kafy-install-target"
   "airootfs/usr/local/share/kafy-installer/system/usr/local/lib/kafy/install/provision-target"
@@ -44,7 +39,7 @@ for required_file in "${required_files[@]}"; do
 done
 
 for executable in \
-  kafy-doctor kafy-installer kafy-install-target kafy-theme kafy-welcome kafy-wallpaper; do
+  kafy-doctor kafy-installer kafy-install-target kafy-welcome; do
   [[ -x "$staging_dir/airootfs/usr/local/bin/$executable" ]] || {
     printf 'Composed command is not executable: %s\n' "$executable" >&2
     exit 1
@@ -53,7 +48,7 @@ done
 
 profile_definition="$profile_dir/profiledef.sh"
 for executable in \
-  kafy-doctor kafy-installer kafy-install-target kafy-theme kafy-welcome kafy-wallpaper; do
+  kafy-doctor kafy-installer kafy-install-target kafy-welcome; do
   grep -Fqx "  [\"/usr/local/bin/$executable\"]=\"0:0:755\"" "$profile_definition"
 done
 

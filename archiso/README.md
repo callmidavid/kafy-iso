@@ -24,6 +24,15 @@ sudo env KAFY_SOURCE=/path/to/kafy ./build.sh
 
 The ISO and SHA-256 checksum are written to `kafy-iso/out/`.
 
+Package downloads are the slow step, and the default mirror is often the bottleneck (the build container's `/etc/pacman.d/mirrorlist` frequently points at a distant or throttled server). Pin a faster mirror when a build crawls:
+
+```sh
+cd ~/Documents/kafy-iso/archiso
+sudo env KAFY_MIRROR='https://ftp.acc.umu.se/mirror/archlinux/$repo/os/$arch' ./build.sh
+```
+
+`KAFY_MIRROR` replaces the profile's `/etc/pacman.d/mirrorlist` include with an explicit `Server` line for `core`, `extra`, and `multilib`. It works for both the native and container build paths. Already-downloaded packages stay in `kafy-iso/cache/pkg`, so a restart reuses everything that completed.
+
 On Ubuntu or Debian, install Docker and build through the included Arch container:
 
 ```sh
