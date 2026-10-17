@@ -21,6 +21,10 @@ required_files=(
   "airootfs/etc/xdg/quickshell/kafy/shell.qml"
   "airootfs/etc/xdg/quickshell/kafy/KafyBar.qml"
   "airootfs/etc/xdg/quickshell/kafy/theme/KafyTheme.qml"
+  "airootfs/etc/skel/.config/quickshell/shell.qml"
+  "airootfs/etc/skel/.config/theme/current/colors.conf"
+  "airootfs/usr/share/sddm/themes/elarun-custom/Main.qml"
+  "airootfs/usr/share/icons/Bibata-Modern-Ice/index.theme"
   "airootfs/usr/local/bin/kafy-wallpaper"
   "airootfs/usr/local/bin/kafy-installer"
   "airootfs/usr/local/bin/kafy-install-target"
@@ -38,9 +42,28 @@ for required_file in "${required_files[@]}"; do
   }
 done
 
+for executable in \
+  kafy-doctor kafy-installer kafy-install-target kafy-shell kafy-theme kafy-welcome kafy-wallpaper; do
+  [[ -x "$staging_dir/airootfs/usr/local/bin/$executable" ]] || {
+    printf 'Composed command is not executable: %s\n' "$executable" >&2
+    exit 1
+  }
+done
+
+profile_definition="$profile_dir/profiledef.sh"
+for executable in \
+  kafy-doctor kafy-installer kafy-install-target kafy-shell kafy-theme kafy-welcome kafy-wallpaper; do
+  grep -Fqx "  [\"/usr/local/bin/$executable\"]=\"0:0:755\"" "$profile_definition"
+done
+
 hyprland_config="$staging_dir/airootfs/etc/skel/.config/hypr/hyprland.conf"
-grep -Fqx 'windowrule = float on, match:class ^(kafy-welcome)$' "$hyprland_config"
-grep -Fqx 'windowrule = center on, match:class ^(kafy-welcome)$' "$hyprland_config"
-grep -Fqx 'exec-once = /usr/local/bin/kafy-wallpaper' "$hyprland_config"
+grep -Fqx 'source = ~/.config/theme/current/colors.conf' "$hyprland_config"
+
+windowrules_config="$staging_dir/airootfs/etc/skel/.config/hypr/windowrules.conf"
+grep -Fqx 'windowrule = float on, match:class ^(kafy-welcome)$' "$windowrules_config"
+grep -Fqx 'windowrule = center on, match:class ^(kafy-welcome)$' "$windowrules_config"
+
+autostart_config="$staging_dir/airootfs/etc/skel/.config/hypr/autostart.conf"
+grep -Fqx 'exec-once = quickshell -p ~/.config/quickshell' "$autostart_config"
 
 printf 'Kafy profile composition test passed.\n'
