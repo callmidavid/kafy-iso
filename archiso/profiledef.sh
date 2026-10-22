@@ -17,4 +17,5 @@ file_permissions=(
   ["/usr/local/bin/kafy-installer"]="0:0:755"
   ["/usr/local/bin/kafy-install-target"]="0:0:755"
   ["/usr/local/bin/kafy-welcome"]="0:0:755"
+  ["/usr/local/lib/kafy/install/kafy-install-backend"]="0:0:755"
 )

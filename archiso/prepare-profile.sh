@@ -33,16 +33,4 @@ tar -C "$kafy_source/install/system" -cf - . | \
 
 install -Dm755 "$kafy_source/bin/kafy-doctor" "$staging_dir/airootfs/usr/local/bin/kafy-doctor"
 
-# Optional: pin a package mirror for the image build. The profile's pacman.conf
-# includes /etc/pacman.d/mirrorlist, which is slow by default in the build
-# container; KAFY_MIRROR replaces that include with an explicit server.
-if [[ -n ${KAFY_MIRROR:-} ]]; then
-  sed -i "s|^Include = /etc/pacman.d/mirrorlist\$|Server = ${KAFY_MIRROR}|" "$staging_dir/pacman.conf"
-  grep -Fq "Server = ${KAFY_MIRROR}" "$staging_dir/pacman.conf" || {
-    printf 'KAFY_MIRROR was not applied to %s\n' "$staging_dir/pacman.conf" >&2
-    exit 1
-  }
-  printf 'Using Kafy package mirror: %s\n' "$KAFY_MIRROR"
-fi
-
 printf 'Prepared Archiso profile at %s\n' "$staging_dir"

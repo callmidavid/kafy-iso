@@ -8,8 +8,6 @@ Build locally from `archiso/` with `sudo ./build.sh`. It reads the product sourc
 
 Before the full build, run `./test/unit/profile-composition.sh` at the repository root. This verifies the source-to-ISO boundary without downloading packages.
 
-The build's slow phase is the package download, and the default mirror in the build container is often throttled. Set `KAFY_MIRROR` to an explicit server to override the profile's `/etc/pacman.d/mirrorlist` include across `core`, `extra`, and `multilib`; this applies to both the native and container paths. Downloads that complete stay in `kafy-iso/cache/pkg` and are reused on the next run.
-
 Before changing `packages.x86_64`, resolve every new package against official Arch repositories. Do not add AUR packages to the ISO build path. A package that is not in the official repositories needs a Kafy-maintained package repository, reproducible package build, and update story first.
 
 ## Source revision contract

@@ -64,6 +64,10 @@ cliphist
 wl-clipboard
 rofi
 kitty
+playerctl
+pamixer
+fd
+hyprpicker
 zsh
 starship
 lsd
@@ -105,24 +109,36 @@ print-manager
 cups
 avahi
 
-# Gaming-ready, without turning the base desktop into a gaming distro.
-steam
-gamemode
-mangohud
-vulkan-tools
-lib32-mesa
-lib32-vulkan-radeon
-lib32-nvidia-utils
-wine
-winetricks
-gamescope
+# Gaming (steam, gamemode, mangohud, vulkan-tools, lib32-*, wine, winetricks,
+# gamescope) is not preinstalled to keep the image small; the Kafy shell's
+# package manager installs it on demand.
 
-# Live image recovery. The graphical Kafy installer is a later, Kafy-owned
-# component; Calamares is not currently provided by Arch's official repos.
+# Kafy graphical installer: GTK4 + libadwaita front-end, Python root backend.
+gtk4
+libadwaita
+python-gobject
+python-cairo
+
+# Disk setup and bootloader for the installed target.
 efibootmgr
 os-prober
 grub
+gptfdisk
+parted
+
+# Manual/advanced install fallback.
 archinstall
+
+# Desktop essentials
+xdg-utils
+xdg-user-dirs
+alsa-utils
+pipewire-alsa
+gst-plugin-pipewire
+wpa_supplicant
+wireless-regdb
+sof-firmware
+exfatprogs
 
 # Useful support tools; never required for normal desktop use.
 git
