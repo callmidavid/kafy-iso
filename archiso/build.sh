@@ -36,7 +36,10 @@ else
   mkarchiso -v -w "$work_dir/archiso" -o "$output_dir" "$staging_dir"
 fi
 
-iso_file=$(find "$output_dir" -maxdepth 1 -name 'kafy-os-*.iso' -print -quit)
+# Older images can remain in out/. Report and checksum the image that was just
+# built, not whichever directory entry find happens to return first.
+iso_file=$(find "$output_dir" -maxdepth 1 -name 'kafy-os-*.iso' -printf '%T@ %p\n' |
+  sort -nr | head -1 | cut -d' ' -f2-)
 if [[ -z $iso_file ]]; then
   echo "Build completed but no Kafy ISO was found." >&2
   exit 1

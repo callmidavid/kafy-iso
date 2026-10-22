@@ -16,6 +16,31 @@ For a developer build, `KAFY_SOURCE` identifies the Kafy product checkout. GitHu
 
 Release automation must record the exact Kafy commit used for every published ISO. Do not treat an unpinned development checkout as a release input.
 
+## Stable-release integrity
+
+The normal build workflow produces test artifacts only. A public release must be created from immutable Kafy and ISO-builder tags, and must publish all of the following together:
+
+- the versioned ISO;
+- a SHA-256 manifest;
+- a detached GPG signature for that manifest;
+- the signing-key fingerprint and verification command;
+- the exact source and builder commits; and
+- the completed VM and hardware acceptance record.
+
+The release owner must create and protect the signing key, add its private key and passphrase as GitHub Actions secrets, and publish the public fingerprint before enabling a release workflow. Do not generate a key in CI or publish an unsigned build as stable.
+
+The `Release Kafy OS ISO` workflow runs only when an ISO-builder tag named `v*` is pushed. It checks out the Kafy source at the *same* tag, runs source and composition checks, builds the ISO, writes `SHA256SUMS` with both commits, produces `SHA256SUMS.asc`, and creates the GitHub release. It requires these repository secrets:
+
+- `KAFY_RELEASE_GPG_PRIVATE_KEY`: ASCII-armored private signing key.
+- `KAFY_RELEASE_GPG_PASSPHRASE`: passphrase for that key.
+
+Before a public release, publish the fingerprint emitted in `SIGNING_KEY_FINGERPRINT` on the Kafy website and repository profile. A user verifies a downloaded ISO with:
+
+```sh
+gpg --verify SHA256SUMS.asc SHA256SUMS
+sha256sum --ignore-missing -c SHA256SUMS
+```
+
 ## Minimum acceptance checklist
 
 Every ISO change must be tested in a VM before being presented as working.

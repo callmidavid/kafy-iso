@@ -32,9 +32,14 @@ required_files=(
   "airootfs/usr/local/share/kafy-installer/optional-packages.json"
   "airootfs/usr/local/share/kafy-installer/system/usr/local/lib/kafy/install/provision-target"
   "airootfs/usr/local/share/kafy-installer/system/usr/local/bin/kafy-first-boot"
+  "airootfs/usr/local/share/kafy-installer/system/usr/local/bin/kafy-migrate"
+  "airootfs/usr/local/share/kafy-installer/system/usr/local/bin/kafy-recover"
+  "airootfs/usr/local/share/kafy-installer/system/usr/local/bin/kafy-update"
   "airootfs/usr/local/share/kafy-installer/system/etc/sudoers.d/kafy-watchcat"
   "airootfs/usr/local/share/kafy-installer/system/etc/systemd/user/kafy-first-boot.service"
+  "airootfs/usr/local/share/kafy-installer/migrations/README.md"
   "airootfs/etc/sddm.conf.d/kafy-live.conf"
+  "airootfs/etc/pacman.d/mirrorlist"
   "airootfs/etc/mkinitcpio.conf.d/archiso.conf"
 )
 
@@ -121,5 +126,13 @@ grep -Fq '/usr/local/bin/kafy-welcome' "$autostart_lua"
 
 windowrules_lua="$staging_dir/airootfs/etc/skel/.config/hypr/windowrules.lua"
 grep -Fq 'org\\.kafy\\.Installer' "$windowrules_lua"
+
+# The live image must have an active mirrorlist; the stock Arch list is entirely
+# commented out and makes pacstrap fail with "no servers configured".
+mirrorlist="$staging_dir/airootfs/etc/pacman.d/mirrorlist"
+grep -Eq '^Server = https://' "$mirrorlist"
+
+# out/ can contain older images. The build must report and checksum the newest.
+grep -Fq "sort -nr | head -1" "$profile_dir/build.sh"
 
 printf 'Kafy profile composition test passed.\n'

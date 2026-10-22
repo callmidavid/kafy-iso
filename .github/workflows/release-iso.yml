@@ -1,0 +1,94 @@
+name: Release Kafy OS ISO
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+env:
+  KAFY_SOURCE_REPOSITORY: King12-D/kafyOS
+
+jobs:
+  release:
+    name: Build, sign, and publish release ISO
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+
+    steps:
+      - name: Require release signing secrets
+        env:
+          PRIVATE_KEY: ${{ secrets.KAFY_RELEASE_GPG_PRIVATE_KEY }}
+          PASSPHRASE: ${{ secrets.KAFY_RELEASE_GPG_PASSPHRASE }}
+        run: |
+          test -n "$PRIVATE_KEY"
+          test -n "$PASSPHRASE"
+
+      - name: Checkout immutable ISO-builder tag
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          path: kafy-iso
+
+      - name: Checkout matching immutable Kafy tag
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.KAFY_SOURCE_REPOSITORY }}
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+          path: kafy
+
+      - name: Verify Kafy source and ISO composition
+        run: |
+          cd kafy
+          ./test/unit/install-contract.sh
+          ./test/unit/release-contract.sh
+          ./test/unit/shell-contract.sh
+          ./test/unit/theme-contract.sh
+          python3 -m py_compile \
+            install/live/usr/local/bin/kafy-installer \
+            install/live/usr/local/lib/kafy/install/kafy-install-backend
+          KAFY_SOURCE="$GITHUB_WORKSPACE/kafy" \
+            "$GITHUB_WORKSPACE/kafy-iso/test/unit/profile-composition.sh"
+
+      - name: Build Kafy Arch ISO
+        run: |
+          docker run --rm \
+            --privileged \
+            -v "$GITHUB_WORKSPACE/kafy-iso:/iso:ro" \
+            -v "$GITHUB_WORKSPACE/kafy:/kafy:ro" \
+            -v "$GITHUB_WORKSPACE/artifacts:/output" \
+            -v "$GITHUB_WORKSPACE/kafy-iso/cache/pkg:/var/cache/pacman/pkg" \
+            -v "$GITHUB_WORKSPACE/kafy-iso/cache/db:/var/lib/pacman/sync" \
+            archlinux:latest \
+            bash -lc 'pacman -Syu --noconfirm archiso && cd /iso/archiso && KAFY_SOURCE=/kafy KAFY_WORK_DIR=/tmp/kafy-archiso-work ./build.sh /output'
+
+      - name: Create signed release manifest
+        env:
+          PRIVATE_KEY: ${{ secrets.KAFY_RELEASE_GPG_PRIVATE_KEY }}
+          PASSPHRASE: ${{ secrets.KAFY_RELEASE_GPG_PASSPHRASE }}
+        run: |
+          set -euo pipefail
+          cd artifacts
+          sha256sum -- *.iso > SHA256SUMS
+          printf 'kafy-source-tag=%s\n' "$GITHUB_REF_NAME" >> SHA256SUMS
+          printf 'kafy-source-commit=%s\n' "$(git -C "$GITHUB_WORKSPACE/kafy" rev-parse HEAD)" >> SHA256SUMS
+          printf 'kafy-iso-builder-commit=%s\n' "$(git -C "$GITHUB_WORKSPACE/kafy-iso" rev-parse HEAD)" >> SHA256SUMS
+          install -d -m 0700 "$RUNNER_TEMP/gnupg"
+          export GNUPGHOME="$RUNNER_TEMP/gnupg"
+          printf '%s' "$PRIVATE_KEY" | gpg --batch --import
+          printf '%s' "$PASSPHRASE" | gpg --batch --pinentry-mode loopback --passphrase-fd 0 \
+            --armor --detach-sign --output SHA256SUMS.asc SHA256SUMS
+          gpg --batch --fingerprint --with-colons | awk -F: '$1 == "fpr" { print $10; exit }' > SIGNING_KEY_FINGERPRINT
+
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            artifacts/*.iso
+            artifacts/SHA256SUMS
+            artifacts/SHA256SUMS.asc
+            artifacts/SIGNING_KEY_FINGERPRINT

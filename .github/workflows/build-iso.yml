@@ -34,6 +34,19 @@ jobs:
           ref: ${{ inputs.kafy_ref || 'main' }}
           path: kafy
 
+      - name: Verify Kafy source and ISO composition
+        run: |
+          cd kafy
+          ./test/unit/install-contract.sh
+          ./test/unit/release-contract.sh
+          ./test/unit/shell-contract.sh
+          ./test/unit/theme-contract.sh
+          python3 -m py_compile \
+            install/live/usr/local/bin/kafy-installer \
+            install/live/usr/local/lib/kafy/install/kafy-install-backend
+          KAFY_SOURCE="$GITHUB_WORKSPACE/kafy" \
+            "$GITHUB_WORKSPACE/kafy-iso/test/unit/profile-composition.sh"
+
       - name: Build Kafy Arch ISO
         run: |
           docker run --rm \

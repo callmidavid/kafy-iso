@@ -31,6 +31,10 @@ mkdir -p "$staging_dir/airootfs/usr/local/share/kafy-installer/system"
 tar -C "$kafy_source/install/system" -cf - . | \
   tar -C "$staging_dir/airootfs/usr/local/share/kafy-installer/system" -xf -
 
+mkdir -p "$staging_dir/airootfs/usr/local/share/kafy-installer/migrations"
+tar -C "$kafy_source/migrations" -cf - . | \
+  tar -C "$staging_dir/airootfs/usr/local/share/kafy-installer/migrations" -xf -
+
 install -Dm755 "$kafy_source/bin/kafy-doctor" "$staging_dir/airootfs/usr/local/bin/kafy-doctor"
 
 printf 'Prepared Archiso profile at %s\n' "$staging_dir"
